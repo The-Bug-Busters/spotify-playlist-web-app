@@ -1,5 +1,5 @@
 - name: AWS EC2 Deployment
-  hosts: localhost
+  hosts: all
   tasks: 
     - name: Create Instance
       amazon.aws.ec2:
