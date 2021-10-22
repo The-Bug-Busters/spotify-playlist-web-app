@@ -16,7 +16,7 @@
         group: default
         count: 3
         assign_public_ip: yes
-        aws_access_key: lookup('env', 'AWS_ACCESS_KEY')
-        aws_secret_key: lookup('env', 'AWS_SECRET_KEY')
+        aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
+        aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
       register: ec2
       
