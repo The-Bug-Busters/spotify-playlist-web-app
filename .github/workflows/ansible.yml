@@ -3,6 +3,9 @@ on: [push]
 jobs:
   Ansible-Deployment:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -11,4 +14,3 @@ jobs:
         with:
           playbook: deploy.yml
           directory: ./
-          key: ${{secrets.DEPLYOMENT_KEY}}

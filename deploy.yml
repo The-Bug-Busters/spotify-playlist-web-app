@@ -1,5 +1,5 @@
 - name: AWS EC2 Deployment
-- hosts: localhost
+  hosts: localhost
   tasks: 
     - name: Create Instance
       amazon.aws.ec2:
@@ -11,3 +11,5 @@
         count: 3
         assign_public_ip: yes
       register: ec2
+      aws_access_key: {{ lookup('env', 'AWS_ACCESS_KEY') }}
+      aws_secret_key: {{ lookup('env', 'AWS_SECRET_KEY') }}
