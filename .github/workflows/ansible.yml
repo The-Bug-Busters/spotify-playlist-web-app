@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Install boto3
+        run: python -m pip install boto3
       - name: Run Ansible playbook
         uses: dawidd6/action-ansible-playbook@v2.5.0
         with:
