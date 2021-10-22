@@ -1,0 +1,3 @@
+- name: Run Ansible playbook
+  on: [push]
+  uses: dawidd6/action-ansible-playbook@v2.5.0
