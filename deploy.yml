@@ -1,4 +1,5 @@
-- name: AWS EC2 Deplyoyment
+- name: AWS EC2 Deployment
+- hosts: localhost
   tasks: 
     - name: Create Instance
       amazon.aws.ec2:
@@ -8,6 +9,5 @@
         wait: yes
         group: webserver
         count: 3
-        vpc_subnet_id: subnet-29e63245
         assign_public_ip: yes
       register: ec2
