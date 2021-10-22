@@ -12,6 +12,7 @@
         instance_type: t2.micro
         image: ami-0dacb0c129b49f529
         region: eu-central-1
+        vpc_subnet_id: subnet-656de129
         wait: yes
         group: default
         count: 3
