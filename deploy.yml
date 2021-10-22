@@ -10,7 +10,7 @@
       amazon.aws.ec2:
         key_name: aws_instance_Ansible
         instance_type: t2.micro
-        image: ami-0dacb0c129b49f529
+        image: ami-05f7491af5eef733a
         region: eu-central-1
         vpc_subnet_id: subnet-656de129
         wait: yes
