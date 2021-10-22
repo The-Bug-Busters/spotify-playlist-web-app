@@ -1,8 +1,6 @@
 - name: AWS EC2 Deployment
   hosts: localhost
   connection: local
-  gather_facts: False
-  tags: provisioning
   tasks: 
     - set_fact:
         ansible_python_interpreter: /usr/bin/python3
@@ -15,7 +13,7 @@
         vpc_subnet_id: subnet-656de129
         wait: yes
         group: default
-        count: 3
+        count: 1
         assign_public_ip: yes
         aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
         aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
