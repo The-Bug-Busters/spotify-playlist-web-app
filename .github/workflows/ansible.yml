@@ -1,6 +1,11 @@
-- name: Run Ansible playbook
-  on: [push]
-  uses: dawidd6/action-ansible-playbook@v2.5.0
-  with:
-    playbook: deploy.yml
-    key: ${{secrets.DEPLYOMENT_KEY}}
+name: Spotify Playlist CI/CD
+on: [push]
+jobs:
+  Ansible-Deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Ansible playbook
+        uses: dawidd6/action-ansible-playbook@v2.5.0
+        with:
+          playbook: deploy.yml
+          key: ${{secrets.DEPLYOMENT_KEY}}
