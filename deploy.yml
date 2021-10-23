@@ -127,6 +127,9 @@
         - docker-ce
         - docker-ce-cli
         - containerd.io
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
     - name: Add user to docker group
       user:
         name: "ubuntu"
