@@ -26,12 +26,14 @@ jobs:
         with:
           push: true
           tags: julianyaman/spotify-dhbw-web-app:latest
-  Ansible-Deployment:
+  ansible-deployment:
     needs: docker
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY:  ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_KEY:  ${{ secrets.AWS_SECRET_KEY }}
+      DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKER_TOKEN:    ${{ secrets.DOCKERHUB_TOKEN }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
     steps:
       - name: Checkout code

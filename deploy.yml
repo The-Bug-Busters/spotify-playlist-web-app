@@ -63,11 +63,11 @@
         timeout: 180
         state: started
       with_items: "{{ ec2.instances }}"
-    - name: Setup SSH connection
+    - name: Setup SSH Key File
       copy:
         dest: ./ssh-key.pem
         content: "{{ lookup('env', 'SSH_PRIVATE_KEY') }}"
-    - name: Change permissions
+    - name: Change permissions of private key
       ansible.builtin.file:
         path: ./ssh-key.pem
         mode: '0400'
@@ -78,6 +78,9 @@
   connection: ssh
   vars:
     ansible_ssh_private_key_file: ./ssh-key.pem
+    docker_compose_file: ./docker-compose.yml
+    docker_username: "{{ lookup('env', 'DOCKERHUB_USERNAME') }}"
+    docker_token:    "{{ lookup('env', 'DOCKERHUB_TOKEN') }}"
     docker_compose_version: "v2.0.1"
   gather_facts: false
   tasks:
@@ -139,6 +142,21 @@
     - name: Move docker-compose to /usr/local/bin/docker-compose
       command: mv ~/docker-compose /usr/local/bin/docker-compose
       when: docker_compose.stat.exists
+    - name: Start docker service
+      service:
+        name: "docker"
+        state: started
+    - name: Login to Docker Hub
+      command: docker login -u {{docker_username}} -p {{docker_token}}
+    - name: Copy docker-compose.yml
+      copy:
+        src: ./docker-compose.yml
+        dest: ~/docker-compose.yml
+    - name: Deploy Docker Compose stack
+      docker_compose:
+        project_src: ~
+        files:
+        - docker-compose.yml
 
 
 
