@@ -1,21 +1,58 @@
+# Ansible AWS Deployment with using Docker
+---
 - name: AWS EC2 Deployment
   hosts: localhost
   connection: local
-  tasks: 
+  gather_facts: false
+  tasks:
     - set_fact:
         ansible_python_interpreter: /usr/bin/python3
+    - name: Setting up the Security Group for new instance
+      amazon.aws.ec2_group:
+          name: Ansible_Security_Group_AWS
+          description: Allowing Traffic on port 22 and 80
+          region: eu-central-1
+          rules:
+           - proto: tcp
+             from_port: 80
+             to_port: 80
+             cidr_ip: 0.0.0.0/0
+
+           - proto: tcp
+             from_port: 22
+             to_port: 22
+             cidr_ip: 0.0.0.0/0
+
+           - proto: icmp
+             from_port: -1
+             to_port: -1
+             cidr_ip: 0.0.0.0/0
+          rules_egress:
+           - proto: all
+             cidr_ip: 0.0.0.0/0
+          vpc_id: vpc-8d1f84e7
     - name: Create Instance
       amazon.aws.ec2:
         key_name: aws_instance_Ansible
         instance_type: t2.micro
+        instance_tags:
+          Name: AWS-Ansible
         image: ami-05f7491af5eef733a
         region: eu-central-1
         vpc_subnet_id: subnet-656de129
         wait: yes
-        group: default
+        monitoring: yes
+        group: Ansible_Security_Group_AWS
         count: 1
         assign_public_ip: yes
         aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
         aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
       register: ec2
-      
+    - name: Wait for SSH to come up
+      wait_for:
+        host: "{{ item.public_dns_name }}"
+        port: 22
+        delay: 60
+        timeout: 320
+        state: started
+      with_items: "{{ ec2.instances }}"
