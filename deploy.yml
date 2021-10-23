@@ -74,6 +74,7 @@
 - name: Launch Application on EC2 Instance
   hosts: launched
   become: true
+  remote_user: ubuntu
   connection: ssh
   vars:
     ansible_ssh_private_key_file: ./ssh-key.pem
