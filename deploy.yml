@@ -148,8 +148,8 @@
         state: started
     - name: Login to DockerHub
       community.docker.docker_login:
-        username: {{docker_username}}
-        password: {{docker_token}}
+        username: "{{ docker_username }}"
+        password: "{{ docker_token }}"
     - name: Copy docker-compose.yml
       copy:
         src: ./docker-compose.yml
