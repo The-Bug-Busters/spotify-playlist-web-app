@@ -146,14 +146,16 @@
       service:
         name: "docker"
         state: started
-    - name: Login to Docker Hub
-      command: docker login -u {{docker_username}} -p {{docker_token}}
+    - name: Login to DockerHub
+      community.docker.docker_login:
+        username: {{docker_username}}
+        password: {{docker_token}}
     - name: Copy docker-compose.yml
       copy:
         src: ./docker-compose.yml
         dest: ~/docker-compose.yml
     - name: Deploy Docker Compose stack
-      docker_compose:
+      community.docker.docker_compose:
         project_src: ~
         files:
         - docker-compose.yml
