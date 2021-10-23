@@ -71,7 +71,7 @@
       ansible.builtin.file:
         path: ./ssh-key.pem
         mode: '0400'
-- name: EC2 - Launch Application
+- name: Launch Application on EC2 Instance
   hosts: launched
   sudo: true
   connection: ssh

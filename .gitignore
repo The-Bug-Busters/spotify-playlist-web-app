@@ -2,3 +2,5 @@
 .idea
 
 .ignore
+
+node_modules
