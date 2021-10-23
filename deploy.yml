@@ -127,9 +127,14 @@
         - docker-ce
         - docker-ce-cli
         - containerd.io
+    - name: Install pip3
+      apt:
+        name: python-pip3
+        state: present
     - name: Install Docker Module for Python
       pip:
         name: docker
+        executable: pip3
     - name: Add user to docker group
       user:
         name: "ubuntu"
