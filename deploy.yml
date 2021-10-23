@@ -73,7 +73,7 @@
         mode: '0400'
 - name: Launch Application on EC2 Instance
   hosts: launched
-  sudo: true
+  become: true
   connection: ssh
   vars:
     ansible_ssh_private_key_file: ./ssh-key.pem
