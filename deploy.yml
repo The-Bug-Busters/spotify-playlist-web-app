@@ -78,6 +78,7 @@
   connection: ssh
   vars:
     ansible_ssh_private_key_file: ./ssh-key.pem
+    docker_compose_version: "v2.0.1"
   gather_facts: false
   tasks:
     - name: Connect to the instance
@@ -129,7 +130,7 @@
         group: docker
     - name: Download docker-compose {{ docker_compose_version }}
       get_url:
-        url : https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
+        url : https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-x86_64
         dest: ~/docker-compose
         mode: '+x'
     - name: Check docker-compose exists
