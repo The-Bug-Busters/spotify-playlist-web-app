@@ -1,13 +1,8 @@
 version: '3.7'
-networks:
-   main:
-     external: true
 services:
    spotify-app:
        image: julianyaman/spotify-dhbw-web-app:latest
        container_name: spotify-dhbw
-       networks:
-         - "main"
        ports:
          - "80:80"
        environment:
