@@ -51,12 +51,6 @@
     - name: Add new instance to host group
       add_host:
         hostname: "{{ item.public_ip }}"
-        groupname: launched_no_instance
-        ansible_region: "{{ item.region }}"
-      loop: "{{ ec2.instances }}"
-    - name: Add new instance to host group (better with ansible_instance_id)
-      add_host:
-        hostname: "{{ item.public_ip }}"
         groupname: launched
         ansible_instance_id: "{{ item.id }}"
         ansible_region: "{{ item.region }}"
@@ -69,15 +63,14 @@
         timeout: 120
         state: started
       with_items: "{{ ec2.instances }}"
-- name: EC2 Launch Application
+- name: EC2 - Launch Application
   hosts: launched
-  connection: eci
   vars:
     aws_region: eu-central-1
     ansible_ssh_user: "ubuntu"
   gather_facts: false
   tasks:
-    - name: Connect to ec2 using eci with root@ip_address with instance-id
+    - name: Connect to ec2 using eci with ubuntu@ip_address with instance-id
       ignore_errors: yes
       command: echo "Connected $USER using instance-id"
       register: message
