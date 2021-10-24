@@ -173,9 +173,13 @@
       register: login_results
     - debug:
         var: login_results
-    - name: Deploy Docker Compose stack
-      docker_compose:
-        project_src: ~/
+    - name: Deploy Docker Container
+      docker_container:
+        name: Spotify-Playlist-App
+        image: julianyaman/spotify-dhbw-web-app
+        state: started
+        ports: "80:80"
+      register: docker_info
 
 
 
