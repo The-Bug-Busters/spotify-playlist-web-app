@@ -163,8 +163,9 @@
         username: "{{ docker_username }}"
         password: "{{ docker_token }}"
         reauthorize: yes
-      when:
-        state: present
+      register: login_results
+    - debug:
+        var: login_results
     - name: Copy docker-compose.yml
       copy:
         src: ./docker-compose.yml
