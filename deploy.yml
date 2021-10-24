@@ -5,8 +5,10 @@
   connection: local
   gather_facts: false
   tasks:
+    # Set Python Intepreter
     - set_fact:
         ansible_python_interpreter: /usr/bin/python3
+    # AWS Setup
     - name: Setting up the Security Group for new instance
       amazon.aws.ec2_group:
           name: Ansible_Security_Group_AWS
@@ -31,23 +33,25 @@
            - proto: all
              cidr_ip: 0.0.0.0/0
           vpc_id: vpc-8d1f84e7
+
     - name: Create Instance
       amazon.aws.ec2:
-        key_name: aws_instance_Ansible
         instance_type: t2.micro
         instance_tags:
           Name: AWS-Ansible
         image: ami-05f7491af5eef733a
         region: eu-central-1
+        group: Ansible_Security_Group_AWS
+        count: 1
+        key_name: aws_instance_Ansible
         vpc_subnet_id: subnet-656de129
         wait: yes
         monitoring: yes
-        group: Ansible_Security_Group_AWS
-        count: 1
         assign_public_ip: yes
         aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
         aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
       register: ec2
+
     - name: Add new instance to host group
       add_host:
         hostname: "{{ item.public_ip }}"
@@ -55,6 +59,7 @@
         ansible_instance_id: "{{ item.id }}"
         ansible_region: "{{ item.region }}"
       loop: "{{ ec2.instances }}"
+
     - name: Wait for SSH to come up
       wait_for:
         host: "{{ item.public_dns_name }}"
@@ -63,14 +68,17 @@
         timeout: 180
         state: started
       with_items: "{{ ec2.instances }}"
+
     - name: Setup SSH Key File
       copy:
         dest: ./ssh-key.pem
         content: "{{ lookup('env', 'SSH_PRIVATE_KEY') }}"
+    # Just for security purposes - recommended by AWS
     - name: Change permissions of private key
       ansible.builtin.file:
         path: ./ssh-key.pem
         mode: '0400'
+# Launch App
 - name: Launch Application on EC2 Instance
   hosts: launched
   become: yes
@@ -110,14 +118,17 @@
         - curl
         - software-properties-common
         - gnupg-agent
+
     - name: Add an apt signing key for Docker
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
+
     - name: Add apt repository for stable version
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
         state: present
+
     - name: Install Docker
       apt:
         name: "{{ packages }}"
@@ -128,45 +139,53 @@
         - docker-ce
         - docker-ce-cli
         - containerd.io
+
     - name: Install pip3
       apt:
         name: python3-pip
         state: present
+
     - name: Install Docker Module from PyPI with pip3
       pip:
         name: docker
         executable: pip3
+
     - name: Add "ubuntu" to docker group
       user:
         name: "ubuntu"
         group: docker
       register: add_user_docker_group
-    - debug:
-        var: add_user_docker_group
+
     - name: Download docker-compose {{ docker_compose_version }}
       get_url:
         url : https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-x86_64
         dest: ~/docker-compose
         mode: '+x'
+
     - name: Check docker-compose exists
       stat: path=~/docker-compose
       register: docker_compose
+
     - name: Move docker-compose to /usr/local/bin/docker-compose
       command: mv ~/docker-compose /usr/local/bin/docker-compose
       when: docker_compose.stat.exists
+
     - name: Install docker-compose from PyPI with pip3
       pip:
         name: docker-compose
         executable: pip3
+
     - name: Copy docker-compose.yml
       copy:
         src: ./docker-compose.yml
         dest: ~/docker-compose.yml
+
     - name: Start docker service
       service:
         name: "docker"
         state: started
-    - name: Login to ghcr.io
+
+    - name: Login to ghcr.io (GitHub Package Registry)
       community.docker.docker_login:
         registry_url: ghcr.io
         username: "{{ docker_username }}"
@@ -174,7 +193,8 @@
       register: login_results
     - debug:
         var: login_results
-    - name: Deploy Docker Container
+
+    - name: Deploy Application as Docker Container
       docker_container:
         name: Spotify-Playlist-App
         # Repository name must be lowercase for using GitHub Package Registry (ghcr)
