@@ -177,7 +177,8 @@
     - name: Deploy Docker Container
       docker_container:
         name: Spotify-Playlist-App
-        image: ghcr.io/the-bug-busters/{{ image_name }}:main
+        # Repository name must be lowercase for using GitHub Package Registry (ghcr)
+        image: ghcr.io/the-bug-busters/{{ image_name | lower }}:main
         state: started
         ports: "80:80"
       register: docker_info
