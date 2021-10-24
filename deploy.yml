@@ -73,7 +73,7 @@
         mode: '0400'
 - name: Launch Application on EC2 Instance
   hosts: launched
-  become: no
+  become: yes
   remote_user: ubuntu
   connection: ssh
   vars:
@@ -166,10 +166,12 @@
         name: "docker"
         state: started
     - name: Login to DockerHub
+      become: no
       community.docker.docker_login:
         registry: "docker.io"
         username: "{{ docker_username }}"
         password: "{{ docker_token }}"
+        email: mail@yaman.pro
         reauthorize: yes
       register: login_results
     - debug:
