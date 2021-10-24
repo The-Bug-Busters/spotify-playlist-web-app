@@ -168,7 +168,7 @@
         state: started
     - name: Login to DockerHub
       community.docker.docker_login:
-        registry: "ghcr.io"
+        registry_url: ghcr.io
         username: "{{ docker_username }}"
         password: "{{ docker_token }}"
         reauthorize: yes
@@ -178,7 +178,7 @@
     - name: Deploy Docker Container
       docker_container:
         name: Spotify-Playlist-App
-        image: ghcr.io/{{ docker_username }}/{{ image_name }}
+        image: ghcr.io/the-bug-busters/{{ image_name }}:main
         state: started
         ports: "80:80"
       register: docker_info
