@@ -166,7 +166,6 @@
         name: "docker"
         state: started
     - name: Login to DockerHub
-      become: no
       community.docker.docker_login:
         registry: "docker.io"
         username: "{{ docker_username }}"
