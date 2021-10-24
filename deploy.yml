@@ -166,20 +166,14 @@
       register: login_results
     - debug:
         var: login_results
-    - name: Copy docker-compose.yml
-      copy:
-        src: ./docker-compose.yml
-        dest: ~/docker-compose.yml
-    - name: Copy docker-deploy.sh
-      copy:
-        src: ./docker-deploy.sh
-        dest: ./docker-deploy.sh
-    - name: Change permissions of docker-deploy.sh
-      ansible.builtin.file:
-        path: ./docker-deploy.sh
-        mode: '0700'
-    - name: Run shell script to deploy
-      ansible.builtin.shell: sudo ./docker-deploy.sh -u {{ docker_username }} -t {{ docker_token }}
+    - name: Run Application as Container
+      community.docker.docker_container:
+         image: julianyaman/spotify-dhbw-web-app:latest
+         name: spotify-dhbw
+         ports:
+           - "80:80"
+         env:
+           NODE_ENV: development
 
 
 
