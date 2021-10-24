@@ -170,11 +170,12 @@
       copy:
         src: ./docker-compose.yml
         dest: ~/docker-compose.yml
-    - name: Deploy Docker Compose stack
-      community.docker.docker_compose:
-        project_src: ~/
-        files:
-        - docker-compose.yml
+    - name: Copy docker-deploy.sh
+      copy:
+        src: ./docker-deploy.sh
+        dest: ~/docker-deploy.sh
+    - name: Run shell script to deploy
+      ansible.builtin.shell: sudo ~/docker-deploy.sh -u {{ docker_username }} -t {{ docker_token }}
 
 
 
