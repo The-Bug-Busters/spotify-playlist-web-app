@@ -47,7 +47,7 @@ jobs:
       AWS_SECRET_KEY:  ${{ secrets.AWS_SECRET_KEY }}
       DOCKER_USERNAME: ${{ github.actor }}
       DOCKER_TOKEN:    ${{ secrets.REGISTRY_GITHUB_TOKEN }}
-      IMAGE_NAME:      ${{ env.IMAGE_NAME }}
+      IMAGE_NAME:      ${{ github.repository }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
     steps:
       - name: Checkout code
