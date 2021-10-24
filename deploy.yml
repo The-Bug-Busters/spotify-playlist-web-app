@@ -79,8 +79,8 @@
   vars:
     ansible_ssh_private_key_file: ./ssh-key.pem
     docker_compose_file: ./docker-compose.yml
-    docker_username: "{{ lookup('env', 'DOCKERHUB_USERNAME') }}"
-    docker_token:    "{{ lookup('env', 'DOCKERHUB_TOKEN') }}"
+    docker_username: "{{ lookup('env', 'DOCKER_USERNAME') }}"
+    docker_token:    "{{ lookup('env', 'DOCKER_TOKEN') }}"
     image_name:      "{{ lookup('env', 'IMAGE_NAME')}}"
     docker_compose_version: "v2.0.1"
   gather_facts: false
@@ -166,12 +166,11 @@
       service:
         name: "docker"
         state: started
-    - name: Login to DockerHub
+    - name: Login to ghcr.io
       community.docker.docker_login:
         registry_url: ghcr.io
         username: "{{ docker_username }}"
         password: "{{ docker_token }}"
-        reauthorize: yes
       register: login_results
     - debug:
         var: login_results
