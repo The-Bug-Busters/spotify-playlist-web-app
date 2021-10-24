@@ -167,22 +167,16 @@
         state: started
     - name: Login to DockerHub
       community.docker.docker_login:
-        registry: "docker.io"
         username: "{{ docker_username }}"
         password: "{{ docker_token }}"
-        email: mail@yaman.pro
         reauthorize: yes
       register: login_results
     - debug:
         var: login_results
-    - name: Deploy Docker Container
-      docker_container:
-        name: Spotify-Playlist-App
-        image: julianyaman/spotify-dhbw-web-app
-        state: started
-        pull: yes
-        ports: "80:80"
-      register: docker_info
+    - name: Pull image
+      command: docker pull julianyaman/spotify-dhbw-web-app:latest
+    - name: Run container
+      command: docker run -d julianyaman/spotify-dhbw-web-app:latest
 
 
 
