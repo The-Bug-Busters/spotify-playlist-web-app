@@ -81,6 +81,7 @@
     docker_compose_file: ./docker-compose.yml
     docker_username: "{{ lookup('env', 'DOCKERHUB_USERNAME') }}"
     docker_token:    "{{ lookup('env', 'DOCKERHUB_TOKEN') }}"
+    image_name:      "{{ lookup('env', 'IMAGE_NAME')}}"
     docker_compose_version: "v2.0.1"
   gather_facts: false
   tasks:
@@ -167,16 +168,20 @@
         state: started
     - name: Login to DockerHub
       community.docker.docker_login:
+        registry: "ghcr.io"
         username: "{{ docker_username }}"
         password: "{{ docker_token }}"
         reauthorize: yes
       register: login_results
     - debug:
         var: login_results
-    - name: Pull image
-      command: docker pull julianyaman/spotify-dhbw-web-app:latest
-    - name: Run container
-      command: docker run -d julianyaman/spotify-dhbw-web-app:latest
+    - name: Deploy Docker Container
+      docker_container:
+        name: Spotify-Playlist-App
+        image: ghcr.io/{{ docker_username }}/{{ image_name }}
+        state: started
+        ports: "80:80"
+      register: docker_info
 
 
 
