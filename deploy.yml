@@ -173,9 +173,9 @@
     - name: Copy docker-deploy.sh
       copy:
         src: ./docker-deploy.sh
-        dest: ~/docker-deploy.sh
+        dest: ./docker-deploy.sh
     - name: Run shell script to deploy
-      ansible.builtin.shell: sudo ~/docker-deploy.sh -u {{ docker_username }} -t {{ docker_token }}
+      ansible.builtin.shell: sudo ./docker-deploy.sh -u {{ docker_username }} -t {{ docker_token }}
 
 
 
