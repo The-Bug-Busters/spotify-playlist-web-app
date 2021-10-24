@@ -73,7 +73,7 @@
         mode: '0400'
 - name: Launch Application on EC2 Instance
   hosts: launched
-  become: yes
+  become: no
   remote_user: ubuntu
   connection: ssh
   vars:
@@ -167,6 +167,7 @@
         state: started
     - name: Login to DockerHub
       community.docker.docker_login:
+        registry: "docker.io"
         username: "{{ docker_username }}"
         password: "{{ docker_token }}"
         reauthorize: yes
@@ -178,6 +179,7 @@
         name: Spotify-Playlist-App
         image: julianyaman/spotify-dhbw-web-app
         state: started
+        pull: yes
         ports: "80:80"
       register: docker_info
 
