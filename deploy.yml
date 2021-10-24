@@ -73,7 +73,7 @@
         mode: '0400'
 - name: Launch Application on EC2 Instance
   hosts: launched
-  become: true
+  become: yes
   remote_user: ubuntu
   connection: ssh
   vars:
@@ -139,6 +139,9 @@
       user:
         name: "ubuntu"
         group: docker
+      register: add_user_docker_group
+    - debug:
+        var: add_user_docker_group
     - name: Download docker-compose {{ docker_compose_version }}
       get_url:
         url : https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-x86_64
@@ -154,6 +157,10 @@
       pip:
         name: docker-compose
         executable: pip3
+    - name: Copy docker-compose.yml
+      copy:
+        src: ./docker-compose.yml
+        dest: ~/docker-compose.yml
     - name: Start docker service
       service:
         name: "docker"
@@ -166,15 +173,9 @@
       register: login_results
     - debug:
         var: login_results
-    - name: Run Application as Container
-      community.docker.docker_container:
-         image: julianyaman/spotify-dhbw-web-app:latest
-         name: spotify-dhbw
-         ports:
-           - "80:80"
-         env:
-           NODE_ENV: development
-
+    - name: Deploy Docker Compose stack
+      community.docker.docker_compose:
+        project_src: ~/
 
 
 
