@@ -86,20 +86,17 @@
   connection: ssh
   vars:
     ansible_ssh_private_key_file: ./ssh-key.pem
-    docker_compose_file: ./docker-compose.yml
-    docker_username: "{{ lookup('env', 'DOCKER_USERNAME') }}"
-    docker_token:    "{{ lookup('env', 'DOCKER_TOKEN') }}"
-    image_name:      "{{ lookup('env', 'IMAGE_NAME')}}"
-    docker_compose_version: "v2.0.1"
+    cloudflare_api_token:         "{{ lookup('env', 'CLOUDFLARE_API_KEY') }}"
+    docker_compose_file:          ./docker-compose.yml
+    docker_username:              "{{ lookup('env', 'DOCKER_USERNAME') }}"
+    docker_token:                 "{{ lookup('env', 'DOCKER_TOKEN') }}"
+    image_name:                   "{{ lookup('env', 'IMAGE_NAME')}}"
+    docker_compose_version:       "v2.0.1"
   gather_facts: false
   tasks:
-    - name: Connect to the instance
-      ignore_errors: yes
-      command: echo "Connected $USER using instance-id"
-      register: message
-    - debug: msg="{{ message.stdout }}"
-      ignore_errors: yes
-
+    - name: Show IP address
+      debug:
+        msg: "{{ ansible_host }}"
     - name: Update apt cache
       apt: update_cache=yes cache_valid_time=3600
 
@@ -202,6 +199,16 @@
         state: started
         ports: "80:80"
       register: docker_info
+
+    - name: Create an A record to point to the created instance after deployment
+      community.general.cloudflare_dns:
+        zone: yaman.pro
+        record: dhbw
+        type: A
+        value: "{{ ansible_host }}"
+        account_email: mail@yaman.pro
+        account_api_key: "{{ cloudflare_api_token }}"
+      register: record
 
 
 
