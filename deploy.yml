@@ -105,9 +105,10 @@
         zone: yaman.pro
         record: dhbw
         type: A
+        proxied: yes
         value: "{{ ansible_host }}"
         account_email: mail@yaman.pro
-        account_api_key: {{ cloudflare_api_token }}
+        account_api_key: "{{ cloudflare_api_token }}"
       register: record
 
     - name: Upgrade all apt packages
