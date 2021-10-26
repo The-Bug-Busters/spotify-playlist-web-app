@@ -86,7 +86,8 @@
   connection: ssh
   vars:
     ansible_ssh_private_key_file: ./ssh-key.pem
-    cloudflare_api_token:         "{{ lookup('env', 'CLOUDFLARE_API_KEY') }}"
+    cloudflare_api_key:           "{{ lookup('env', 'CLOUDFLARE_API_KEY') }}"
+    cloudflare_api_token:         "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
     docker_compose_file:          ./docker-compose.yml
     docker_username:              "{{ lookup('env', 'DOCKER_USERNAME') }}"
     docker_token:                 "{{ lookup('env', 'DOCKER_TOKEN') }}"
@@ -108,7 +109,8 @@
         proxied: yes
         value: "{{ ansible_host }}"
         account_email: mail@yaman.pro
-        account_api_key: "{{ cloudflare_api_token }}"
+        account_api_key: "{{ cloudflare_api_key }}"
+        api_token: "{{ cloudflare_api_token }}"
       register: record
 
     - name: Upgrade all apt packages
