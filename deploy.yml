@@ -100,6 +100,16 @@
     - name: Update apt cache
       apt: update_cache=yes cache_valid_time=3600
 
+    - name: Create an A record to point to the created instance after deployment
+      community.general.cloudflare_dns:
+        zone: yaman.pro
+        record: dhbw
+        type: A
+        value: "{{ ansible_host }}"
+        account_email: mail@yaman.pro
+        account_api_key: {{ cloudflare_api_token }}
+      register: record
+
     - name: Upgrade all apt packages
       apt: upgrade=dist
 
@@ -199,16 +209,6 @@
         state: started
         ports: "80:80"
       register: docker_info
-
-    - name: Create an A record to point to the created instance after deployment
-      community.general.cloudflare_dns:
-        zone: yaman.pro
-        record: dhbw
-        type: A
-        value: "{{ ansible_host }}"
-        account_email: mail@yaman.pro
-        account_api_key: "{{ cloudflare_api_token }}"
-      register: record
 
 
 
