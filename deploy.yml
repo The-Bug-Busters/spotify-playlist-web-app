@@ -12,9 +12,14 @@
     - name: Setting up the Security Group for new instance
       amazon.aws.ec2_group:
           name: Ansible_Security_Group_AWS
-          description: Allowing Traffic on port 22 and 80
+          description: Allowing Traffic on port 22, 80 and 443
           region: eu-central-1
           rules:
+           - proto: tcp
+             from_port: 443
+             to_port: 443
+             cidr_ip: 0.0.0.0/0
+
            - proto: tcp
              from_port: 80
              to_port: 80
@@ -205,7 +210,7 @@
         zone: "{{ domain }}"
         record: dhbw
         type: A
-        proxied: yes
+        proxied: no
         value: "{{ ansible_host }}"
         account_email: "{{ cloudflare_email }}"
         account_api_key: "{{ cloudflare_api_key }}"
@@ -215,7 +220,6 @@
     - name: Create a network
       docker_network:
         name: main
-        internal: no
 
     - name: Start Traefik
       docker_container:
@@ -238,9 +242,9 @@
           # Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
           - --entrypoints.https.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22
           - --entrypoints.https.http.tls.certresolver=dns-cloudflare
-          - --entrypoints.https.http.tls.domains[0].main="{{ domain }}"
-          - --entrypoints.https.http.tls.domains[0].sans=*."{{ domain }}"
-          - --certificatesresolvers.dns-cloudflare.acme.email="{{ cloudflare_email }}"
+          - --entrypoints.https.http.tls.domains[0].main={{ domain }}
+          - --entrypoints.https.http.tls.domains[0].sans=*.{{ domain }}
+          - --certificatesresolvers.dns-cloudflare.acme.email={{ cloudflare_email }}
           - --certificatesResolvers.dns-cloudflare.acme.storage=/acme.json
           - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
           - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
@@ -250,13 +254,11 @@
           - "443:443"
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
-          - "/etc/cert:/etc/cert:ro"
-          - "/home/ops/traefik:/etc/traefik/"
-          - "/home/ops/certs:/etc/certs:ro"
         labels:
-          traefik.enable: "true"
-          traefik.http.middlewares.https_redirect.redirectscheme.scheme: https
-          traefik.http.middlewares.https_redirect.redirectscheme.permanent: "true"
+          traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
+          traefik.http.routers.http-catchall.entrypoints: http
+          traefik.http.routers.http-catchall.middlewares: redirect-to-https
+          traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
         env:
           CLOUDFLARE_EMAIL: "{{ cloudflare_email | string }}"
           CLOUDFLARE_API_KEY: "{{ cloudflare_api_key | string }}"
