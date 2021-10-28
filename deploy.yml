@@ -200,11 +200,17 @@
     - debug:
         var: login_results
 
+    - name: Create a network
+      docker_network:
+        name: main
+
     - name: Start Traefik
       docker_container:
         name: reverse-proxy
         # Repository name must be lowercase for using GitHub Package Registry (ghcr)
         image: traefik
+        networks:
+          - name: main
         # restart: unless-stopped
         command:
           - --providers.docker
@@ -250,8 +256,11 @@
         name: spotify-playlist-app
         # Repository name must be lowercase for using GitHub Package Registry (ghcr)
         image: ghcr.io/{{ image_name | lower }}:main
+        networks:
+          - name: main
         state: started
-        ports: "80:80"
+        exposed_ports:
+          - 80
         labels:
           traefik.enable: "true"
           traefik.http.routers.spotify-playlist-app.entrypoints: https
