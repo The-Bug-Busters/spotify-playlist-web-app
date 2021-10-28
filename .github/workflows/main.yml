@@ -44,14 +44,19 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     env:
-      AWS_ACCESS_KEY:       ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_KEY:       ${{ secrets.AWS_SECRET_KEY }}
-      CLOUDFLARE_API_KEY:   ${{ secrets.CLOUDFLARE_API_KEY }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      DOCKER_TOKEN:         ${{ secrets.REGISTRY_GITHUB_TOKEN }}
-      DOCKER_USERNAME:      ${{ secrets.DOCKERHUB_USERNAME }}
-      IMAGE_NAME:           ${{ github.repository }}
-      SSH_PRIVATE_KEY:      ${{ secrets.SSH_PRIVATE_KEY }}
+      AWS_ACCESS_KEY:        ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_KEY:        ${{ secrets.AWS_SECRET_KEY }}
+      CLOUDFLARE_API_KEY:    ${{ secrets.CLOUDFLARE_API_KEY }}
+      CLOUDFLARE_API_TOKEN:  ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # CLOUDFLARE_CA_SERVER: ${{ secrets.CLOUDFLARE_CA_SERVER }}
+      CLOUDFLARE_EMAIL:      ${{ secrets.CLOUDFLARE_EMAIL }}
+      DOCKER_TOKEN:          ${{ secrets.REGISTRY_GITHUB_TOKEN }}
+      DOCKER_USERNAME:       ${{ secrets.DOCKERHUB_USERNAME }}
+      DOMAIN:                ${{ secrets.DOMAIN }}
+      IMAGE_NAME:            ${{ github.repository }}
+      SPOTIFY_CLIENT_ID:     ${{ secrets.SPOTIFY_CLIENT_ID }}
+      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+      SSH_PRIVATE_KEY:       ${{ secrets.SSH_PRIVATE_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
