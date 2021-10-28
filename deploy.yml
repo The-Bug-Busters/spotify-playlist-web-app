@@ -226,6 +226,9 @@
           - name: main
         # restart: unless-stopped
         command:
+          - --api=true
+          - --api.insecure=true
+          - --ping
           - --providers.docker=true
           - --entrypoints.http.address=:80
           - --entrypoints.https.address=:443
@@ -237,7 +240,7 @@
           - --entrypoints.https.http.tls.certresolver=dns-cloudflare
           - --entrypoints.https.http.tls.domains[0].main="{{ domain }}"
           - --entrypoints.https.http.tls.domains[0].sans=*."{{ domain }}"
-          - --certificatesresolvers.cloudflare.acme.email="{{ cloudflare_email }}"
+          - --certificatesresolvers.dns-cloudflare.acme.email="{{ cloudflare_email }}"
           - --certificatesResolvers.dns-cloudflare.acme.storage=/acme.json
           - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
           - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
@@ -249,16 +252,6 @@
           - "/var/run/docker.sock:/var/run/docker.sock"
           - "/etc/cert:/etc/cert:ro"
           # - "certstore:/etc/certstore"
-        labels:
-          traefik.enable: "true"
-          # HTTP-to-HTTPS Redirect
-          traefik.http.routers.http-catchall.entrypoints: http
-          # traefik.http.routers.http-catchall.rule: HostRegexp(`{host:.+}`)
-          traefik.http.routers.http-catchall.middlewares: redirect-to-https
-          traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
-          # HTTP Routers
-          traefik.http.routers.traefik-rtr.entrypoints: https
-          traefik.http.routers.traefik-rtr.rule: HostHeader(`traefik.$DOMAINNAME`)
         env:
           CLOUDFLARE_EMAIL: "{{ cloudflare_email | string }}"
           CLOUDFLARE_API_KEY: "{{ cloudflare_api_key | string }}"
@@ -275,10 +268,15 @@
         state: started
         labels:
           traefik.enable: "true"
-          traefik.http.routers.spotify-playlist-app.entrypoints: https
-          traefik.http.routers.spotify-playlist-app.tls: "true"
-          traefik.http.routers.spotify-playlist-app.tls.certresolver: dns-cloudflare
           traefik.http.routers.spotify-playlist-app.rule: Host(`dhbw.yaman.pro`)
+          traefik.http.routers.spotify-playlist-app.entrypoints: web
+          traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
+          traefik.http.routers.spotify-playlist-app.middlewares: redirect-to-https@docker
+          traefik.http.routers.spotify-playlist-app-secured.entrypoints: https
+          traefik.http.routers.spotify-playlist-app-secured.tls: "true"
+          traefik.http.routers.spotify-playlist-app-secured.tls.certresolver: dns-cloudflare
+          traefik.http.routers.spotify-playlist-app-secured.rule: Host(`dhbw.yaman.pro`)
+          traefik.http.services.spotify-playlist-app.loadbalancer.server.port: 80
         env:
           SPOTIFY_CLIENT_ID: "{{ spotify_client_id | string }}"
           SPOTIFY_CLIENT_SECRET: "{{ spotify_client_secret | string }}"
