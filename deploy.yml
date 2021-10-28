@@ -230,18 +230,18 @@
           - "/etc/cert:/etc/cert:ro"
           # - "certstore:/etc/certstore"
         labels:
-          - "traefik.enable=true"
+          traefik.enable: true
           # HTTP-to-HTTPS Redirect
-          - "traefik.http.routers.http-catchall.entrypoints=http"
-          - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
-          - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-          - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+          traefik.http.routers.http-catchall.entrypoints: http
+          # traefik.http.routers.http-catchall.rule: HostRegexp(`{host:.+}`)
+          traefik.http.routers.http-catchall.middlewares: redirect-to-https
+          traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
           # HTTP Routers
-          - "traefik.http.routers.traefik-rtr.entrypoints=https"
-          - "traefik.http.routers.traefik-rtr.rule=HostHeader(`traefik.$DOMAINNAME`)"
+          traefik.http.routers.traefik-rtr.entrypoints: https
+          traefik.http.routers.traefik-rtr.rule: HostHeader(`traefik.$DOMAINNAME`)
         env:
-          CLOUDFLARE_EMAIL="{{ cloudflare_email | string }}"
-          CLOUDFLARE_API_KEY="{{ cloudflare_api_key | string }}"
+          CLOUDFLARE_EMAIL: "{{ cloudflare_email | string }}"
+          CLOUDFLARE_API_KEY: "{{ cloudflare_api_key | string }}"
         state: started
       register: docker_info
 
@@ -253,14 +253,14 @@
         state: started
         ports: "80:80"
         labels:
-          - traefik.enable=true
-          - traefik.http.routers.spotify-playlist-app.entrypoints=https
-          - traefik.http.routers.spotify-playlist-app.tls=true
-          - traefik.http.routers.spotify-playlist-app.tls.certresolver=dns-cloudflare
-          - traefik.http.routers.spotify-playlist-app.rule=Host(`dhbw."{{ domain }}"`)
+          traefik.enable: true
+          traefik.http.routers.spotify-playlist-app.entrypoints: https
+          traefik.http.routers.spotify-playlist-app.tls: true
+          traefik.http.routers.spotify-playlist-app.tls.certresolver: dns-cloudflare
+          traefik.http.routers.spotify-playlist-app.rule: Host(`dhbw."{{ domain }}"`)
         env:
-          SPOTIFY_CLIENT_ID="{{ spotify_client_id | string }}"
-          SPOTIFY_CLIENT_SECRET="{{ spotify_client_secret | string }}"
+          SPOTIFY_CLIENT_ID: "{{ spotify_client_id | string }}"
+          SPOTIFY_CLIENT_SECRET: "{{ spotify_client_secret | string }}"
       register: docker_info
 
     - name: Create an A record to point to the EC2 instance
