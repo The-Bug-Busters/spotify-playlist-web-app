@@ -276,7 +276,7 @@
           traefik.http.routers.spotify-playlist-app-secured.tls: "true"
           traefik.http.routers.spotify-playlist-app-secured.tls.certresolver: dns-cloudflare
           traefik.http.routers.spotify-playlist-app-secured.rule: Host(`dhbw.yaman.pro`)
-          traefik.http.services.spotify-playlist-app.loadbalancer.server.port: 80
+          traefik.http.services.spotify-playlist-app.loadbalancer.server.port: "80"
         env:
           SPOTIFY_CLIENT_ID: "{{ spotify_client_id | string }}"
           SPOTIFY_CLIENT_SECRET: "{{ spotify_client_secret | string }}"
