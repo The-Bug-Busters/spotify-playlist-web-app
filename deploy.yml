@@ -205,7 +205,7 @@
         name: reverse-proxy
         # Repository name must be lowercase for using GitHub Package Registry (ghcr)
         image: traefik
-        restart: unless-stopped
+        # restart: unless-stopped
         command:
           - --providers.docker
           - --entrypoints.http.address=:80
