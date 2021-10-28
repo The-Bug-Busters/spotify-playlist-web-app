@@ -240,8 +240,8 @@
           - "traefik.http.routers.traefik-rtr.entrypoints=https"
           - "traefik.http.routers.traefik-rtr.rule=HostHeader(`traefik.$DOMAINNAME`)"
         env:
-          - CLOUDFLARE_EMAIL="{{ cloudflare_email }}"
-          - CLOUDFLARE_API_KEY="{{ cloudflare_api_key }}"
+          CLOUDFLARE_EMAIL="{{ cloudflare_email | string }}"
+          CLOUDFLARE_API_KEY="{{ cloudflare_api_key | string }}"
         state: started
       register: docker_info
 
@@ -259,8 +259,8 @@
           - traefik.http.routers.spotify-playlist-app.tls.certresolver=dns-cloudflare
           - traefik.http.routers.spotify-playlist-app.rule=Host(`dhbw."{{ domain }}"`)
         env:
-          - SPOTIFY_CLIENT_ID="{{ spotify_client_id }}"
-          - SPOTIFY_CLIENT_SECRET="{{ spotify_client_secret }}"
+          SPOTIFY_CLIENT_ID="{{ spotify_client_id | string }}"
+          SPOTIFY_CLIENT_SECRET="{{ spotify_client_secret | string }}"
       register: docker_info
 
     - name: Create an A record to point to the EC2 instance
