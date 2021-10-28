@@ -200,9 +200,22 @@
     - debug:
         var: login_results
 
+    - name: Create an A record to point to the EC2 instance
+      community.general.cloudflare_dns:
+        zone: "{{ domain }}"
+        record: dhbw
+        type: A
+        proxied: yes
+        value: "{{ ansible_host }}"
+        account_email: "{{ cloudflare_email }}"
+        account_api_key: "{{ cloudflare_api_key }}"
+        api_token: "{{ cloudflare_api_token }}"
+      register: record
+
     - name: Create a network
       docker_network:
         name: main
+        internal: no
 
     - name: Start Traefik
       docker_container:
@@ -213,10 +226,11 @@
           - name: main
         # restart: unless-stopped
         command:
-          - --providers.docker
+          - --providers.docker=true
           - --entrypoints.http.address=:80
           - --entrypoints.https.address=:443
           - --providers.docker.exposedByDefault=false
+          - --providers.docker.network=main
           # - --certificatesresolvers.cloudflare.acme.caServer="{{ cloudflare_ca_server }}"
           # Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
           - --entrypoints.https.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22
@@ -259,27 +273,13 @@
         networks:
           - name: main
         state: started
-        exposed_ports:
-          - 80
         labels:
           traefik.enable: "true"
           traefik.http.routers.spotify-playlist-app.entrypoints: https
           traefik.http.routers.spotify-playlist-app.tls: "true"
           traefik.http.routers.spotify-playlist-app.tls.certresolver: dns-cloudflare
-          traefik.http.routers.spotify-playlist-app.rule: Host(`dhbw."{{ domain }}"`)
+          traefik.http.routers.spotify-playlist-app.rule: Host(`dhbw.yaman.pro`)
         env:
           SPOTIFY_CLIENT_ID: "{{ spotify_client_id | string }}"
           SPOTIFY_CLIENT_SECRET: "{{ spotify_client_secret | string }}"
       register: docker_info
-
-    - name: Create an A record to point to the EC2 instance
-      community.general.cloudflare_dns:
-        zone: "{{ domain }}"
-        record: dhbw
-        type: A
-        proxied: yes
-        value: "{{ ansible_host }}"
-        account_email: "{{ cloudflare_email }}"
-        account_api_key: "{{ cloudflare_api_key }}"
-        api_token: "{{ cloudflare_api_token }}"
-      register: record
