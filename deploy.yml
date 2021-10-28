@@ -265,7 +265,7 @@
 
     - name: Create an A record to point to the EC2 instance
       community.general.cloudflare_dns:
-        zone: {{ domain }}
+        zone: "{{ domain }}"
         record: dhbw
         type: A
         proxied: yes
