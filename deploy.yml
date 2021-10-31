@@ -232,30 +232,28 @@
         command:
           # - --api=true
           # - --api.insecure=true
-          - --ping
           # Entrypoints
           - --entrypoints.web.address=:80
+          - --entrypoints.web.http.redirections.entryPoint.to=web-secure
+          - --entrypoints.web.http.redirections.entryPoint.scheme=https
           - --entrypoints.web-secure.address=:443
           # Docker
-          - --providers.docker=true
+          - --providers.docker
           - --providers.docker.exposedByDefault=false
           - --providers.docker.network=main
           # Certificate
-          - --certificatesResolvers.dns-cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # LetsEncrypt Staging Server
-          - --certificatesresolvers.dns-cloudflare.acme.email={{ cloudflare_email }}
-          - --certificatesResolvers.dns-cloudflare.acme.storage=/acme.json
-          - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
+          # - --certificatesResolvers.cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # LetsEncrypt Staging Server
+          - --certificatesresolvers.cloudflare.acme.email={{ cloudflare_email }}
+          - --certificatesResolvers.cloudflare.acme.storage=/acme.json
+          - --certificatesresolvers.cloudflare.acme.dnschallenge.delayBeforeCheck=0
+          - --certificatesResolvers.cloudflare.acme.dnsChallenge.provider=cloudflare
+          - --certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53
+          - --certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.0.0.1:53
         ports:
           - "80:80"
           - "443:443"
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
-        labels:
-          traefik.http.routers.traefik.tls.certresolver: dns-cloudflare
-          # traefik.http.routers.http-catchall.rule: hostregexp(`{host:.+}`)
-          # traefik.http.routers.http-catchall.entrypoints: http
-          # traefik.http.routers.http-catchall.middlewares: redirect-to-https
-          traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
         env:
           CLOUDFLARE_EMAIL: "{{ cloudflare_email | string }}"
           CLOUDFLARE_API_KEY: "{{ cloudflare_api_key | string }}"
@@ -274,16 +272,9 @@
           traefik.enable: "true"
           traefik.docker.network: main
           # HTTP
-          traefik.http.routers.spotify-playlist-app.rule: Host(`dhbw.yaman.pro`)
-          traefik.http.routers.spotify-playlist-app.entrypoints: web
-          traefik.http.routers.spotify-playlist-app.middlewares: redirect-to-https@docker
-          traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
-          # HTTPS
-          traefik.http.routers.spotify-playlist-app-secured.entrypoints: web-secure
-          traefik.http.routers.spotify-playlist-app-secured.tls: "true"
-          traefik.http.routers.spotify-playlist-app-secured.tls.certresolver: dns-cloudflare
-          traefik.http.routers.spotify-playlist-app-secured.rule: Host(`dhbw.yaman.pro`)
-          traefik.http.services.spotify-playlist-app.loadbalancer.server.port: "80"
+          traefik.http.routers.spotify-playlist-app.entrypoints: web-secure
+          traefik.http.routers.spotify-playlist-app.rule: Host('dhbw.yaman.pro')
+          traefik.http.routers.spotify-playlist-app.tls.certresolver: cloudflare
         env:
           SPOTIFY_CLIENT_ID: "{{ spotify_client_id | string }}"
           SPOTIFY_CLIENT_SECRET: "{{ spotify_client_secret | string }}"
