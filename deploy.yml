@@ -289,7 +289,7 @@
         # Repository name must be lowercase for using GitHub Package Registry (ghcr)
         image: ghcr.io/{{ image_name | lower }}:main
         networks:
-          - name: "main"
+          - name: web
         state: started
         labels:
           traefik.enable: "true"
