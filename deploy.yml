@@ -101,10 +101,14 @@
     docker_token:                 "{{ lookup('env', 'DOCKER_TOKEN') }}"
     domain:                       "{{ lookup('env', 'DOMAIN')}}"
     image_name:                   "{{ lookup('env', 'IMAGE_NAME')}}"
+    traefik_api_user:             "{{ lookup('env', 'TRAEFIK_USERNAME')}}"
+    traefik_api_password:         "{{ lookup('env', 'TRAEFIK_PASSWORD')}}"
     traefik_api_url:              "traefik.yaman.pro"
     traefik_dir:                  "/var/www/traefik"
     spotify_client_id:            "{{ lookup('env', 'SPOTIFY_CLIENT_ID')}}"
     spotify_client_secret:        "{{ lookup('env', 'SPOTIFY_CLIENT_SECRET')}}"
+    user:                         "ubuntu"
+    group:                        "docker"
   gather_facts: false
   tasks:
     - name: Show IP address
@@ -161,7 +165,7 @@
         name: docker
         executable: pip3
 
-    - name: Add ubuntu to docker group
+    - name: Add {{ user }} to docker group
       user:
         name: "ubuntu"
         group: docker
@@ -219,62 +223,80 @@
 
     - name: Create a network
       docker_network:
-        name: main
+        name: web
+
+    - name: Ensures traefik dir exists
+      file:
+        path: "{{ traefik_dir }}"
+        state: directory
+        owner: "{{ user }}"
+        group: "{{ group }}"
+
+    - name: Ensures acme.json file exists
+      file:
+        path: "{{ traefik_dir }}/acme.json"
+        state: touch
+        mode: 0600
+
+    - name: Adding traefik.yml file
+      template:
+        src: traefik.yml.j2
+        dest: "{{ traefik_dir }}/traefik.yml"
+        mode: 0600
+      vars:
+        acme_domain:    "{{ domain }}"
+        acme_email:     "{{ cloudflare_email }}"
+        acme_provider:  "cloudflare"
 
     - name: Start Traefik
-      docker_container:
-        name: reverse-proxy
+      community.docker.docker_container:
+        name: traefik
         # Repository name must be lowercase for using GitHub Package Registry (ghcr)
-        image: traefik
+        image: traefik:2.2
         networks:
-          - name: main
-        # restart: unless-stopped
-        command:
-          # - --api=true
-          # - --api.insecure=true
-          # Entrypoints
-          - --entrypoints.web.address=:80
-          - --entrypoints.web.http.redirections.entryPoint.to=web-secure
-          - --entrypoints.web.http.redirections.entryPoint.scheme=https
-          - --entrypoints.web-secure.address=:443
-          # Docker
-          - --providers.docker
-          - --providers.docker.exposedByDefault=false
-          - --providers.docker.network=main
-          # Certificate
-          # - --certificatesResolvers.cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # LetsEncrypt Staging Server
-          - --certificatesresolvers.cloudflare.acme.email={{ cloudflare_email }}
-          - --certificatesResolvers.cloudflare.acme.storage=/acme.json
-          - --certificatesresolvers.cloudflare.acme.dnschallenge.delayBeforeCheck=0
-          - --certificatesResolvers.cloudflare.acme.dnsChallenge.provider=cloudflare
-          - --certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.1.1.1:53
-          - --certificatesresolvers.cloudflare.acme.dnschallenge.resolvers=1.0.0.1:53
+          - name: web
+        restart_policy: unless-stopped
+        recreate: true
         ports:
           - "80:80"
           - "443:443"
         volumes:
+          - "{{ traefik_dir }}/traefik.yml:/etc/traefik/traefik.yml"
+          - "{{ traefik_dir }}/acme.json:/acme.json"
           - "/var/run/docker.sock:/var/run/docker.sock"
         env:
           CLOUDFLARE_EMAIL: "{{ cloudflare_email | string }}"
           CLOUDFLARE_API_KEY: "{{ cloudflare_api_key | string }}"
+        labels:
+          traefik.enable: "true"
+          # Global Redirect to HTTPS
+          # traefik.http.routers.http-catchall.rule: "hostregexp(`{host:.+}`)"
+          # traefik.http.routers.http-catchall.entrypoints: "web"
+          # traefik.http.routers.http-catchall.middlewares: "redirect-to-https"
+          # Middleware
+          # traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+          # Dashboard
+          traefik.http.routers.traefik.entrypoints: "websecure"
+          traefik.http.routers.traefik.service: "api@internal"
+          traefik.http.routers.traefik.middlewares: "auth"
+          traefik.http.middlewares.auth.basicauth.users: "{{ traefik_api_user }}:{{ traefik_api_password | password_hash('blowfish','1234567890123456789012') }}"
         state: started
       register: docker_info
 
     - name: Deploy Application as Docker Container
-      docker_container:
+      community.docker.docker_container:
         name: spotify-playlist-app
         # Repository name must be lowercase for using GitHub Package Registry (ghcr)
         image: ghcr.io/{{ image_name | lower }}:main
         networks:
-          - name: main
+          - name: "main"
         state: started
         labels:
           traefik.enable: "true"
-          traefik.docker.network: main
           # HTTP
-          traefik.http.routers.spotify-playlist-app.entrypoints: web-secure
-          traefik.http.routers.spotify-playlist-app.rule: Host('dhbw.yaman.pro')
-          traefik.http.routers.spotify-playlist-app.tls.certresolver: cloudflare
+          traefik.http.routers.spotify-playlist-app.entrypoints: "websecure"
+          traefik.http.routers.spotify-playlist-app.rule: "Host(`dhbw.yaman.pro`)"
+          traefik.http.routers.spotify-playlist-app.tls.certresolver: "cloudflare"
         env:
           SPOTIFY_CLIENT_ID: "{{ spotify_client_id | string }}"
           SPOTIFY_CLIENT_SECRET: "{{ spotify_client_secret | string }}"

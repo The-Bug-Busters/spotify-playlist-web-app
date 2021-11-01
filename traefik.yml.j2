@@ -1,0 +1,44 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: ERROR
+
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: :443
+    http:
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "{{ acme_domain }}"
+            sans:
+              - "*.{{ acme_domain }}"
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: "{{ acme_email }}"
+      storage: acme.json
+      dnsChallenge:
+        provider: "{{ acme_provider }}"
+        delayBeforeCheck: 5
+        resolvers:
+          - 1.1.1.1:53
+          - 1.0.0.1:53
+
+providers:
+  docker:
+    network: web
+    exposedByDefault: false

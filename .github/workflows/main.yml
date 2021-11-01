@@ -57,6 +57,8 @@ jobs:
       SPOTIFY_CLIENT_ID:     ${{ secrets.SPOTIFY_CLIENT_ID }}
       SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
       SSH_PRIVATE_KEY:       ${{ secrets.SSH_PRIVATE_KEY }}
+      TRAEFIK_USERNAME:      ${{ secrets.TRAEFIK_USERNAME }}
+      TRAEFIK_PASSWORD:      ${{ secrets.TRAEFIK_PASSWORD }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
