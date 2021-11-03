@@ -133,6 +133,7 @@
         - curl
         - software-properties-common
         - gnupg-agent
+        - apache2-utils
 
     - name: Add an apt signing key for Docker
       apt_key:
@@ -248,9 +249,13 @@
         acme_email:     "{{ cloudflare_email }}"
         acme_provider:  "cloudflare"
 
+    - name: Generate auth string with user and encoded password for Treafik
+      command: echo $(htpasswd -nb "{{ traefik_api_user | string }}" "{{ traefik_api_password | string }}") | sed -e s/\\$/\\$\\$/g
+      register: auth_string
+
     - name: Show Login Data
       debug:
-        msg: "{{ traefik_api_user }}:{{ traefik_api_password | string }}"
+        msg: "{{ auth_string.stdout }}"
 
     - name: Start Traefik
       community.docker.docker_container:
@@ -281,7 +286,7 @@
           traefik.http.routers.traefik.entrypoints: "websecure"
           traefik.http.routers.traefik.service: "api@internal"
           traefik.http.routers.traefik.middlewares: "auth"
-          traefik.http.middlewares.auth.basicauth.users: "{{ traefik_api_user | string }}:{{ traefik_api_password | password_hash('blowfish','1234567890123456789012') | string }}"
+          traefik.http.middlewares.auth.basicauth.users: "{{ auth_string.stdout }}"
         env:
           CLOUDFLARE_EMAIL: "{{ cloudflare_email | string }}"
           CLOUDFLARE_API_KEY: "{{ cloudflare_api_key | string }}"
