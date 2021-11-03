@@ -250,7 +250,7 @@
         acme_provider:  "cloudflare"
 
     - name: Generate auth string with user and encoded password for Treafik
-      command: echo $(htpasswd -nb "{{ traefik_api_user | string }}" "{{ traefik_api_password | string }}") | sed -e s/\\$/\\$\\$/g
+      shell: echo $(htpasswd -nb "{{ traefik_api_user | string }}" "{{ traefik_api_password | string }}") | sed -e s/\\$/\\$\\$/g
       register: auth_string
 
     - name: Show Login Data
