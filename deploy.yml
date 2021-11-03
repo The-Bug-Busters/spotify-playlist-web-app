@@ -207,8 +207,10 @@
         username: "{{ docker_username }}"
         password: "{{ docker_token }}"
       register: login_results
-    - debug:
-        var: login_results
+
+    - name: Check if ghcr.io login was successful
+      debug:
+        var: login_results.login_result.status
 
     # - name: Create an A record to point to the EC2 instance
     #   community.general.cloudflare_dns:
@@ -250,12 +252,12 @@
         acme_provider:  "cloudflare"
 
     - name: Generate auth string with user and encoded password for Treafik
-      shell: echo $(htpasswd -nb "{{ traefik_api_user | string }}" "{{ traefik_api_password | string }}") | sed -e s/\\$/\\$\\$/g
+      shell: echo $(htpasswd -nb test test) | sed -e s/\\$/\\$\\$/g
       register: auth_string
 
     - name: Show Login Data
       debug:
-        msg: "{{ auth_string.stdout }}/"
+        msg: "{{ auth_string.stdout | string }}"
 
     - name: Start Traefik
       community.docker.docker_container:
@@ -275,18 +277,12 @@
           - "/var/run/docker.sock:/var/run/docker.sock"
         labels:
           traefik.enable: "true"
-          # Global Redirect to HTTPS
-          # traefik.http.routers.http-catchall.rule: "hostregexp(`{host:.+}`)"
-          # traefik.http.routers.http-catchall.entrypoints: "web"
-          # traefik.http.routers.http-catchall.middlewares: "redirect-to-https"
-          # Middleware
-          # traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
           # Dashboard
           traefik.http.routers.traefik.rule: "Host(`{{ traefik_api_url }}`)"
           traefik.http.routers.traefik.entrypoints: "websecure"
           traefik.http.routers.traefik.service: "api@internal"
           traefik.http.routers.traefik.middlewares: "auth"
-          traefik.http.middlewares.auth.basicauth.users: "{{ auth_string.stdout }}/"
+          traefik.http.middlewares.auth.basicauth.users: "{{ auth_string.stdout }}"
         env:
           CLOUDFLARE_EMAIL: "{{ cloudflare_email | string }}"
           CLOUDFLARE_API_KEY: "{{ cloudflare_api_key | string }}"
