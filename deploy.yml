@@ -255,7 +255,7 @@
 
     - name: Show Login Data
       debug:
-        msg: "{{ auth_string.stdout }}"
+        msg: "{{ auth_string.stdout }}/"
 
     - name: Start Traefik
       community.docker.docker_container:
@@ -286,7 +286,7 @@
           traefik.http.routers.traefik.entrypoints: "websecure"
           traefik.http.routers.traefik.service: "api@internal"
           traefik.http.routers.traefik.middlewares: "auth"
-          traefik.http.middlewares.auth.basicauth.users: "{{ auth_string.stdout }}"
+          traefik.http.middlewares.auth.basicauth.users: "{{ auth_string.stdout }}/"
         env:
           CLOUDFLARE_EMAIL: "{{ cloudflare_email | string }}"
           CLOUDFLARE_API_KEY: "{{ cloudflare_api_key | string }}"
