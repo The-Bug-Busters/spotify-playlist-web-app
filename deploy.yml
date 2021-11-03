@@ -209,17 +209,17 @@
     - debug:
         var: login_results
 
-    - name: Create an A record to point to the EC2 instance
-      community.general.cloudflare_dns:
-        zone: "{{ domain }}"
-        record: dhbw
-        type: A
-        proxied: yes
-        value: "{{ ansible_host }}"
-        account_email: "{{ cloudflare_email }}"
-        account_api_key: "{{ cloudflare_api_key }}"
-        api_token: "{{ cloudflare_api_token }}"
-      register: record
+    # - name: Create an A record to point to the EC2 instance
+    #   community.general.cloudflare_dns:
+    #     zone: "{{ domain }}"
+    #     record: dhbw
+    #     type: A
+    #     proxied: yes
+    #     value: "{{ ansible_host }}"
+    #     account_email: "{{ cloudflare_email }}"
+    #     account_api_key: "{{ cloudflare_api_key }}"
+    #    api_token: "{{ cloudflare_api_token }}"
+    #   register: record
 
     - name: Create a network
       docker_network:
