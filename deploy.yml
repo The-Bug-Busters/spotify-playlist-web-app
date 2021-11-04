@@ -252,7 +252,7 @@
         acme_provider:  "cloudflare"
 
     - name: Generate auth string with user and encoded password for Treafik
-      shell: echo $(htpasswd -nb "{{ traefik_api_user | string }}" "{{ traefik_api_password | string }}") | sed -e s/\\$/\\$\\$/g
+      shell: echo $(htpasswd -nb "{{ traefik_api_user | string }}" "{{ traefik_api_password | string }}")
       register: auth_string
 
     - name: Start Traefik
@@ -278,8 +278,8 @@
           traefik.http.routers.traefik.entrypoints: "websecure"
           traefik.http.routers.traefik.tls: "true"
           traefik.http.routers.traefik.service: "api@internal"
-          traefik.http.routers.traefik.middlewares: "auth"
-          traefik.http.middlewares.auth.basicauth.users: "{{ auth_string.stdout }}"
+          traefik.http.routers.traefik.middlewares: "traefik-auth"
+          traefik.http.middlewares.traefik-auth.basicauth.users: "{{ auth_string.stdout }}"
         env:
           CF_API_EMAIL: "{{ cloudflare_email | string }}"
           CF_API_KEY: "{{ cloudflare_api_key | string }}"
