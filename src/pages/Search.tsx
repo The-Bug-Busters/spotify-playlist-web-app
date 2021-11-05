@@ -13,8 +13,8 @@ import ManagePlaylistsMenu from "../components/managePlaylistsMenu"
 import { authorization_access, searchSong } from "../lib/spotify"
 
 var credentials = {
-    clientId: '0cef777950f24f19b04212a35ac9d143',
-    clientSecret: '9bd5703a19af4a61b9d81301d4289ea6'
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET
 }
 let spotifyApi = new SpotifyWebApi(credentials);
 

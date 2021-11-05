@@ -4,8 +4,8 @@ url.URLSearchParams = URLSearchParams;
 const base64 = require('base-64');
 
 var credentials = {
-    clientId: '0cef777950f24f19b04212a35ac9d143',
-    clientSecret: '9bd5703a19af4a61b9d81301d4289ea6'
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET
 }
 
 export async function authorization_access(){
