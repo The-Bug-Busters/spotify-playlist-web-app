@@ -13,8 +13,8 @@ import ManagePlaylistsMenu from "../components/managePlaylistsMenu"
 import { authorization_access, searchSong } from "../lib/spotify"
 
 var credentials = {
-    clientId: process.env.SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+    clientId: process.env.REACT_APP_SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.REACT_APP_SPOTIFY_CLIENT_SECRET
 }
 let spotifyApi = new SpotifyWebApi(credentials);
 
@@ -38,6 +38,7 @@ class Search extends React.Component<{},any> {
     }
 
     SearchSpotifySongs = async (searchBarInput: String) => {
+        console.log(process.env)
         console.log(credentials)
         let token = await authorization_access()
         console.log(token)
