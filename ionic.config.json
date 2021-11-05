@@ -1,0 +1,7 @@
+{
+  "name": "spotify-playlist-web-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

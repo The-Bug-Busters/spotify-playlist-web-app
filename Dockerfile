@@ -6,10 +6,14 @@ WORKDIR /usr/src/app
 
 COPY ["package.json", "package-lock.json", "./"]
 
+RUN npm install -g ionic
+
 RUN npm install
 
 COPY . .
 
-EXPOSE 3000
+RUN ionic build
 
-CMD ["npm", "start"]
+RUN npm install -g serve
+
+CMD ["serve", "-s", "build"]

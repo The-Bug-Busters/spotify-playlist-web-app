@@ -1,9 +1,0 @@
-version: '3.7'
-services:
-   spotify-app:
-       image: "julianyaman/spotify-dhbw-web-app:latest"
-       container_name: spotify-dhbw
-       ports:
-         - "80:80"
-       environment:
-         NODE_ENV: development
