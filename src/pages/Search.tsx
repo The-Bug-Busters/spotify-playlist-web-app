@@ -10,7 +10,7 @@ import MyPlaylistMenu from "../components/myPlaylistMenu"
 import SearchSuggestions from "../components/searchSuggestions"
 import ManagePlaylistsMenu from "../components/managePlaylistsMenu"
 //Own lib functions
-import modules from "../lib/spotify"
+import { authorization_access, searchSong } from "../lib/spotify"
 
 var credentials = {
     clientId: '0cef777950f24f19b04212a35ac9d143',
@@ -38,8 +38,8 @@ class Search extends React.Component<{},any> {
     }
 
     SearchSpotifySongs = async (searchBarInput: String) => {
-        let token = await modules.authorization_access()
-        modules.searchSong(searchBarInput, spotifyApi, token, this) //Sets state "foundSongs" after search completed
+        let token = await authorization_access()
+        searchSong(searchBarInput, spotifyApi, token, this) //Sets state "foundSongs" after search completed
     }
 
     render() {

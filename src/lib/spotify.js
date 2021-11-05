@@ -8,7 +8,7 @@ var credentials = {
     clientSecret: '9bd5703a19af4a61b9d81301d4289ea6'
 }
 
-async function authorization_access(){
+export async function authorization_access(){
     const params = new URLSearchParams({ grant_type: 'client_credentials' });
     const authString = 'Basic ' + base64.encode(credentials.clientId + ':' + credentials.clientSecret);
 
@@ -36,7 +36,7 @@ function millisToMinutesAndSeconds(millis) {
 }
 
 // Search tracks whose name, album or artist contains "query"
-function searchSong(query, spotifyApi, token, subPage) {
+export function searchSong(query, spotifyApi, token, subPage) {
     spotifyApi.setAccessToken(token);
     let songs = []
 
@@ -66,5 +66,3 @@ function searchSong(query, spotifyApi, token, subPage) {
         console.error(err);
     })
 }
-
-module.exports = { authorization_access, searchSong }
