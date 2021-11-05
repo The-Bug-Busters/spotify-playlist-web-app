@@ -1,6 +1,5 @@
 //Mixed & General imports
 import React from "react"
-import SpotifyWebApi from "spotify-web-api-node"
 //Ionic imports
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from "@ionic/react"
 //Own components
@@ -10,13 +9,7 @@ import MyPlaylistMenu from "../components/myPlaylistMenu"
 import SearchSuggestions from "../components/searchSuggestions"
 import ManagePlaylistsMenu from "../components/managePlaylistsMenu"
 //Own lib functions
-import { authorization_access, searchSong } from "../lib/spotify"
-
-var credentials = {
-    clientId: process.env.REACT_APP_SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.REACT_APP_SPOTIFY_CLIENT_SECRET
-}
-let spotifyApi = new SpotifyWebApi(credentials);
+import { searchSong } from "../lib/spotify"
 
 class Search extends React.Component<{},any> {
     constructor(props: any) {
@@ -38,11 +31,7 @@ class Search extends React.Component<{},any> {
     }
 
     SearchSpotifySongs = async (searchBarInput: String) => {
-        console.log(process.env)
-        console.log(credentials)
-        let token = await authorization_access()
-        console.log(token)
-        searchSong(searchBarInput, spotifyApi, token, this) //Sets state "foundSongs" after search completed
+        await searchSong(searchBarInput, this) //Sets state "foundSongs" after search completed
     }
 
     render() {
