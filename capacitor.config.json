@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "spotify-playlist-web-app",
+	"webDir": "build",
+	"bundledWebRuntime": false
+}

@@ -1,0 +1,11 @@
+.searchBarContainer {
+    position: absolute;
+    left: 30%;
+    right: 30%;
+    top: 12%;
+    transform: translateY(-50%);
+}
+
+.ion-searchbar {
+    background: rgb(124, 124, 124);
+}
