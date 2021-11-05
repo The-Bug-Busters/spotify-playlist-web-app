@@ -172,30 +172,6 @@
         group: docker
       register: add_user_docker_group
 
-    - name: Download docker-compose {{ docker_compose_version }}
-      get_url:
-        url : https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-x86_64
-        dest: ~/docker-compose
-        mode: '+x'
-
-    - name: Check docker-compose exists
-      stat: path=~/docker-compose
-      register: docker_compose
-
-    - name: Move docker-compose to /usr/local/bin/docker-compose
-      command: mv ~/docker-compose /usr/local/bin/docker-compose
-      when: docker_compose.stat.exists
-
-    - name: Install docker-compose from PyPI with pip3
-      pip:
-        name: docker-compose
-        executable: pip3
-
-    - name: Copy docker-compose.yml
-      copy:
-        src: ./docker-compose.yml
-        dest: ~/docker-compose.yml
-
     - name: Start docker service
       service:
         name: "docker"
