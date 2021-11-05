@@ -38,7 +38,9 @@ class Search extends React.Component<{},any> {
     }
 
     SearchSpotifySongs = async (searchBarInput: String) => {
+        console.log(credentials)
         let token = await authorization_access()
+        console.log(token)
         searchSong(searchBarInput, spotifyApi, token, this) //Sets state "foundSongs" after search completed
     }
 
