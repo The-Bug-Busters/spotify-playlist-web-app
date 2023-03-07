@@ -21,7 +21,7 @@
     "@types/react-router-dom": "^5.1.7",
     "axios": "^0.24.0",
     "base-64": "^1.0.0",
-    "ionicons": "^5.4.0",
+    "ionicons": "^7.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router": "^5.2.0",
